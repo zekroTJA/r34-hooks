@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "handlers",
+    "persistence",
+    "r34-wrapper",
+    "scraper",
+]

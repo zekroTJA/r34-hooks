@@ -1,0 +1,17 @@
+[package]
+name = "handlers"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+scraper = { path = "../scraper" }
+persistence = { path = "../persistence" }
+serde_json = "1.0.96"
+tokio = "1.27.0"
+vercel_runtime = "0.3.4"
+
+[[bin]]
+name = "handler"
+path = "api/invoke.rs"

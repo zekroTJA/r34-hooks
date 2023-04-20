@@ -1,0 +1,14 @@
+[package]
+name = "scraper"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+r34-wrapper = { path = "../r34-wrapper" }
+persistence = { path = "../persistence" }
+anyhow = "1.0.70"
+reqwest = { version = "0.11.16", default-features = false, features = ["rustls-tls", "json"] }
+serde = { version = "1.0.160", features = ["derive"] }
+async-trait = "0.1.68"
