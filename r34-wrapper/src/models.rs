@@ -60,6 +60,17 @@ pub struct Post {
     pub preview_height: u64,
 }
 
+impl Post {
+    pub fn tags(&self) -> Vec<&str> {
+        self.tags_concat
+            .trim()
+            .split(' ')
+            .map(|v| v.trim())
+            .filter(|v| !v.is_empty())
+            .collect()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
