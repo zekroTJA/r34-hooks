@@ -73,3 +73,6 @@ GET <vercel_url>/api/invoke
 ```
 
 The configuration also provides a cronjob which calls the `invoke` handler every day.
+
+> **Note**  
+> **Pro tip**: If you have a VPS, use it to create a cron job to schedule the handler more than once per day, which is the restriction on Vercel's free plan. 😉
