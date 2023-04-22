@@ -1,12 +1,11 @@
 pub mod env;
 pub mod hooks;
 
-use std::collections::HashMap;
-
 use anyhow::Result;
 use hooks::HookImpl;
 use persistence::PersistenceImpl;
 use r34_wrapper::{Client, Post};
+use std::collections::HashMap;
 
 pub type WatchMap = HashMap<String, (Vec<String>, HookImpl)>;
 
@@ -15,14 +14,21 @@ pub struct Scraper {
     db: PersistenceImpl,
     watchers: WatchMap,
     limit: usize,
+    default_tags: Option<Vec<String>>,
 }
 
 impl Scraper {
-    pub fn new(db: PersistenceImpl, watch: WatchMap, limit: usize) -> Self {
+    pub fn new(
+        db: PersistenceImpl,
+        watch: WatchMap,
+        limit: usize,
+        default_tags: Option<Vec<String>>,
+    ) -> Self {
         Self {
             db,
             watchers: watch,
             limit,
+            default_tags,
         }
     }
 
@@ -54,7 +60,9 @@ impl Scraper {
         let mut new = vec![];
 
         loop {
-            let res = client.list_posts(tags, Some(page), Some(10)).await?;
+            let default = self.default_tags.clone().unwrap_or_default();
+            let tags = [tags, default.as_slice()].concat();
+            let res = client.list_posts(&tags, Some(page), Some(10)).await?;
             if res.count == 0 {
                 break;
             }

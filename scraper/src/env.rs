@@ -15,8 +15,10 @@ enum WatchPart {
 
 impl Scraper {
     pub async fn from_env() -> Result<Self> {
-        let mut db: Option<PersistenceImpl> = None;
-        let mut limit: Option<usize> = None;
+        let mut db = None;
+        let mut limit = None;
+        let mut default_tags = None;
+
         let mut tags: HashMap<String, Vec<String>> = HashMap::new();
         let mut hooks: HashMap<String, HookImpl> = HashMap::new();
 
@@ -43,6 +45,7 @@ impl Scraper {
 
             match first.as_str() {
                 "LIMIT" => limit = Some(val.parse()?),
+                "DEFAULTTAGS" => default_tags = get_tags(&val),
                 "DATABASE" => db = get_database(&key[1..], &val).await?,
                 "WATCH" => {
                     let (uid, part) = get_watchpart(&key[1..], &val)?;
@@ -78,6 +81,7 @@ impl Scraper {
         Ok(Self {
             db,
             watchers,
+            default_tags,
             limit: limit.unwrap_or(100),
         })
     }
@@ -130,4 +134,18 @@ fn get_watch_hook(keys: &[String], val: &str) -> Result<HookImpl> {
         "DISCORD" => Ok(HookImpl::Discord(Discord::new(val))),
         _ => anyhow::bail!("unsupported or invalid hook type"),
     }
+}
+
+fn get_tags(val: &str) -> Option<Vec<String>> {
+    let val = val.trim();
+    let tags: Vec<_> = val
+        .split(',')
+        .map(|v| v.trim())
+        .filter(|v| !v.is_empty())
+        .map(|v| v.to_owned())
+        .collect();
+    if tags.is_empty() {
+        return None;
+    }
+    Some(tags)
 }
