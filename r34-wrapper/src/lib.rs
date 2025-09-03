@@ -6,12 +6,21 @@ pub use models::*;
 
 const API_ROOT: &str = "https://api.rule34.xxx/index.php";
 
-#[derive(Default)]
 pub struct Client {
     client: reqwest::Client,
+    user_id: String,
+    api_key: String,
 }
 
 impl Client {
+    pub fn new(user_id: &str, api_key: &str) -> Self {
+        Self {
+            user_id: user_id.to_string(),
+            api_key: api_key.to_string(),
+            client: reqwest::Client::new(),
+        }
+    }
+
     pub async fn list_posts(
         &self,
         tags: &[String],
@@ -36,10 +45,13 @@ impl Client {
         limit: Option<u64>,
         id: Option<u64>,
     ) -> Result<Posts> {
-        let mut req =
-            self.client
-                .get(API_ROOT)
-                .query(&[("page", "dapi"), ("s", "post"), ("q", "index")]);
+        let mut req = self.client.get(API_ROOT).query(&[
+            ("page", "dapi"),
+            ("s", "post"),
+            ("q", "index"),
+            ("user_id", &self.user_id),
+            ("api_key", &self.api_key),
+        ]);
 
         if let Some(tags) = tags {
             req = req.query(&[("tags", &tags.join(" "))]);

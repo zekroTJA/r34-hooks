@@ -18,6 +18,8 @@ impl Scraper {
         let mut db = None;
         let mut limit = None;
         let mut default_tags = None;
+        let mut user_id = None;
+        let mut api_key = None;
 
         let mut tags: HashMap<String, Vec<String>> = HashMap::new();
         let mut hooks: HashMap<String, HookImpl> = HashMap::new();
@@ -58,6 +60,8 @@ impl Scraper {
                         }
                     }
                 }
+                "USERID" => user_id = Some(val.to_string()),
+                "APIKEY" => api_key = Some(val.to_string()),
                 _ => {}
             }
         }
@@ -83,6 +87,8 @@ impl Scraper {
             watchers,
             default_tags,
             limit: limit.unwrap_or(100),
+            user_id: user_id.ok_or_else(|| anyhow::anyhow!("USERID not set"))?,
+            api_key: api_key.ok_or_else(|| anyhow::anyhow!("APIKEY not set"))?,
         })
     }
 }

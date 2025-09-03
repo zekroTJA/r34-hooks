@@ -15,6 +15,8 @@ pub struct Scraper {
     watchers: WatchMap,
     limit: usize,
     default_tags: Option<Vec<String>>,
+    user_id: String,
+    api_key: String,
 }
 
 impl Scraper {
@@ -23,12 +25,16 @@ impl Scraper {
         watch: WatchMap,
         limit: usize,
         default_tags: Option<Vec<String>>,
+        user_id: String,
+        api_key: String,
     ) -> Self {
         Self {
             db,
             watchers: watch,
             limit,
             default_tags,
+            user_id,
+            api_key,
         }
     }
 
@@ -44,7 +50,7 @@ impl Scraper {
     }
 
     pub async fn get_new(&self, uid: &str, tags: &[String]) -> Result<Option<Vec<Post>>> {
-        let client = Client::default();
+        let client = Client::new(&self.user_id, &self.api_key);
 
         let Some(last_uid) = self.db.get_last_id(uid).await? else {
             self.set_latest_id(&client, uid, tags).await?;
@@ -104,8 +110,8 @@ impl Scraper {
     async fn set_latest_id(&self, client: &Client, uid: &str, tags: &[String]) -> Result<()> {
         let res = client.list_posts(tags, Some(0), Some(1)).await?;
         let Some(post) = res.posts.first() else {
-                return Ok(());
-            };
+            return Ok(());
+        };
         self.db.set_last_id(uid, post.id as i64).await?;
         Ok(())
     }
