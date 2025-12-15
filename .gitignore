@@ -3,3 +3,4 @@
 *.xml
 .vercel
 /config*.yaml
+/storage.json
