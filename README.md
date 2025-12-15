@@ -3,76 +3,80 @@
 > **Warning**  
 > The associated web page `rule34.xxx` does show explicit and sexual content! Viewer discretion is advised.
 
-This (maybe a little bit over engineered) serverless application checks rule34.xxx for new contents for a given tag combination and sends new entries to specified hook targets.
-
-## How does it work?
-
-In the crate `handlers` under `api/invoke.rs`, you can find a Vercel serverless handler which will on invocation create a new instance of `Scraper` with persistence and `watcher` configuration extracted from the set environment variables.
-
-As persistence layer only PostgreSQL is currently implemented.
-
-A `watcher` consists of an `Uid`, a collection of image tags and a hook implementation instance. When the handler gets invoked, the following procedure is executed for each registered `watcher` entry.
-
-First, an entry for `last_id` will be looked up for the `watcher` Uid in the persistence layer (i.e. Postgres database). If no entry is available or if the image behind the Uid has been deleted, the latest image for the tag combination will be requested and the ID of the image will be stored with the `watcher` Uid. After that, the execution terminates.
-
-If a value for `last_id` has been recovered and the image still exists, the API will fetch new images for the given tag combination pagewise until the image with the UID has been found.
-
-The collection of new imsages is then sent via the specified hook implementation (i.e. Discord web hooks).
+A little application to crawl rule34.xxx for new images of specified tags and distribute them to different targets like Discord webhooks.
 
 ## Deployment
 
-To deploy the Vercel serverless function, you first need to install the [Vercel CLI](https://vercel.com/docs/cli) and log in with your account.
+You can simply use the following Docker image for easy deployment.
 
-Clone the repository and deploy the app to Vercel afterwards.
-```sh
-git clone https://github.com/zekrotja/r34-hooks.git
-cd r34-hooks
-vercel --prod
+```
+ghcr.io/zekrotja/r34-hooks
 ```
 
-After that, configure the project via environment variables using the Vercel CLI.
-
-First, specify the Postgres database URL.
-```sh
-echo "postgresql://user:password@address:port/db" \
-    | vercel env add R34_DATABASE_POSTGRES production
+```yaml
+services:
+  r34-hooks:
+    image: ghcr.io/zekrotja/r34-hooks
+    restart: unless-stopped
+    environment:
+      R34_STORAGE_DIR: /etc/r34-hooks/storage.json
+      R34_LOG_LEVEL: info
+      R34_SCHEDULE: "0 0 */12 * * *"
+      R34_DYNAMIC_CONFIG_PATH: /etc/r34-hooks/dynamic-config.yaml
+    volumes:
+      - ./r34-hooks:/etc/r34-hooks
 ```
 
-After that, we want to define our watchers. First, define the image tags to be watched (separated by `,`).
-```sh
-echo "kindred,-futanari" \
-    | vercel env add R34_WATCH_myguild1_TAGS production
+### Static Config
+
+The static config is loaded on startup. It can either be passed as config file by passing the path to the file as first command argument or by environment variables. When you pass the static config via environment parameters, you need to specify a path to the dynamic config. Otherwise, the path of the static config will be used for the dynamic config, so that you can store the static and dynamic config together in one single file. The static config file can be passed in YAML or TOML format.
+
+| Key                   | Type     | Required                                          | Description                                          |
+| --------------------- | -------- | ------------------------------------------------- | ---------------------------------------------------- |
+| `storage_dir`         | `string` | No (default: `storage.json`)                      | Storage file location                                |
+| `log_level`           | `string` | No (default: `info`)                              | Log level                                            |
+| `schedule`            | `string` | No                                                | Cron schedule (including seconds) for scheduled mode |
+| `dynamic_config_path` | `string` | Only if config is passed as environment variables | Path to the dynamic config file                      |
+
+### Dynamic Config
+
+The dynamic config is loaded on every execution of the runner (when in scheduled mode). The dynamic config file can be passed in YAML or TOML format. Below you can find a quick example of the dynamic config.
+
+```yaml
+user_id: "123456"
+api_token: "secrettokenfoobarbaz"
+
+default_tags:
+  - high_res
+  - -ai_generated
+
+targets:
+  - tags:
+      - kindred
+    hook:
+      discord:
+        webhook_url: https://discord.com/api/webhooks/1234567890/webhooktokenexample
 ```
 
-Now, we need to define the hook used for the watcher.
-```sh
-echo "https://discord.com/api/webhooks/<channel_id>/<token>" \
-    | vercel env add R34_WATCH_myguild1_HOOK_DISCORD production
-```
+| Key            | Type       | Required            | Description                                                                                    |
+| -------------- | ---------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `user_id`      | `string`   | Yes                 | Rule34 API user ID (see [options page](https://rule34.xxx/index.php?page=account&s=options))   |
+| `api_token`    | `string`   | Yes                 | Rule34 API API token (see [options page](https://rule34.xxx/index.php?page=account&s=options)) |
+| `default_tags` | `string[]` | No                  | Default tags which are and-linked to the target tags                                           |
+| `targets`      | `Target[]` | Yes                 | List of targets                                                                                |
+| `limit`        | `number`   | No (default: `100`) | Maximum number of requested entries per listing request                                        |
 
-You can specify mutliple watcher configuration by defining the previous mentioned variables using different UIDs.
-```
-R34_WATCH_<uid>_TAGS
-R34_WATCH_<uid>_HOOK_<hook_impl>
-```
+#### `Target`
 
-Examples:
-```
-R34_WATCH_guild1kindred_TAGS
-R34_WATCH_guild1kindred_HOOK_DISCORD
+| Key    | Type       | Required | Description             |
+| ------ | ---------- | -------- | ----------------------- |
+| `tags` | `string[]` | Yes      | List of and-linked tags |
+| `hook` | `Hook`     | Yes      | Hook configuration      |
 
-R34_WATCH_guild1kaisa_TAGS
-R34_WATCH_guild1kaisa_HOOK_DISCORD
-```
+#### `Hook`
 
-After that you might need to re-deploy the production deployment of the project to apply the environment configuration.
+##### `Discord`
 
-Then, simply call the serverless function route to invoke the configured scraper.
-```
-GET <vercel_url>/api/invoke
-```
-
-The configuration also provides a cronjob which calls the `invoke` handler every day.
-
-> **Note**  
-> **Pro tip**: If you have a VPS, use it to create a cron job to schedule the handler more than once per day, which is the restriction on Vercel's free plan. 😉
+| Key           | Type     | Required | Description                |
+| ------------- | -------- | -------- | -------------------------- |
+| `webhook_url` | `string` | Yes      | URL of the discord webhook |
