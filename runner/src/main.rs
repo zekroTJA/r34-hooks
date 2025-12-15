@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
 
     let cfg: StaticConfig = match config_file_path {
         Some(ref p) => config::parse(p)?,
-        None => config::parse_from_env("R34")?,
+        None => config::parse_from_env("R34_")?,
     };
 
     let log_level: tracing::Level = cfg.log_level.parse()?;
