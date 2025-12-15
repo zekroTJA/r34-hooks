@@ -1,10 +1,12 @@
-use std::path::Path;
-
 use super::Hook;
 use anyhow::Result;
 use async_trait::async_trait;
 use r34_wrapper::Post;
-use serde::Serialize;
+use reqwest::StatusCode;
+use serde::{Deserialize, Serialize};
+use std::path::Path;
+use std::time::Duration;
+use tokio::time;
 
 #[derive(Serialize, Default)]
 struct EmbedField {
@@ -87,7 +89,7 @@ impl From<&Post> for WebhookPayload {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Discord {
     webhook_url: String,
 }
@@ -110,14 +112,34 @@ impl Discord {
     }
 
     async fn send_one(&self, post: &Post) -> Result<()> {
-        reqwest::Client::default()
-            .post(&self.webhook_url)
-            .json(&WebhookPayload::from(post))
-            .send()
-            .await?
-            .error_for_status()?;
+        loop {
+            tracing::info!("Sending discord web hook for post {}", post.id);
 
-        Ok(())
+            let res = reqwest::Client::default()
+                .post(&self.webhook_url)
+                .json(&WebhookPayload::from(post))
+                .send()
+                .await?;
+
+            if res.status() == StatusCode::TOO_MANY_REQUESTS {
+                let wait_for = res
+                    .headers()
+                    .get("X-RateLimit-Reset-After")
+                    .and_then(|v| v.to_str().ok())
+                    .map(|v| v.parse())
+                    .transpose()?
+                    .unwrap_or(5.0);
+
+                tracing::warn!("Discord rate limit exceeded; waiting for {wait_for} seconds ...");
+                time::sleep(Duration::from_secs_f64(wait_for)).await;
+
+                continue;
+            }
+
+            res.error_for_status()?;
+
+            return Ok(());
+        }
     }
 }
 

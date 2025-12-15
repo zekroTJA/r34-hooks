@@ -1,0 +1,21 @@
+user_id: "670310"
+api_token: "362984aafc11732e36efadeab5d271fa234462cb05a8e5a48f4124634cf17e38b9adc8f4f022eda15a10eaa61475fba57bcfc5a52db4b1a7c1b9049329a8459b"
+
+default_tags:
+  - -shit
+  - -shitting
+  - -scat
+  - -gore
+  - -fart
+  - -preggo
+  - -inflation
+  - -futa
+  - -futanari
+  - -ai
+
+targets:
+  - tags:
+      - kindred
+    hook:
+      discord:
+        webhook_url: https://discord.com/api/webhooks/1450093408046813264/Ji4012Ob0qI8cm3WnVlqSTgZfLmV_NHnvWjf2MKuRtivvePcLzx8n3xULHaKQoPgFY6c

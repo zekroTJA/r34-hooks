@@ -1,9 +1,11 @@
-mod postgrest;
-pub use postgrest::*;
-
 use anyhow::Result;
 use async_trait::async_trait;
+pub use local::Local;
+pub use postgrest::Postgres;
 use std::ops::Deref;
+
+mod local;
+mod postgrest;
 
 #[async_trait]
 pub trait Persistence {
@@ -14,6 +16,7 @@ pub trait Persistence {
 #[derive(Debug)]
 pub enum PersistenceImpl {
     Postgres(Postgres),
+    Local(Local),
 }
 
 impl Deref for PersistenceImpl {
@@ -22,6 +25,7 @@ impl Deref for PersistenceImpl {
     fn deref(&self) -> &Self::Target {
         match self {
             Self::Postgres(pg) => pg,
+            Self::Local(local) => local,
         }
     }
 }

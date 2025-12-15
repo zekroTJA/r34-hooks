@@ -40,6 +40,7 @@ impl Scraper {
 
     pub async fn run(&self) -> Result<()> {
         for (uid, (tags, hook)) in &self.watchers {
+            tracing::info!("Running watcher {uid} ...");
             let new = self.get_new(uid, tags).await?;
             if let Some(new) = new {
                 hook.send(&new).await?;

@@ -1,10 +1,10 @@
-use crate::{
-    hooks::{discord::Discord, HookImpl},
-    Scraper, WatchMap,
-};
+use crate::hooks::discord::Discord;
+use crate::hooks::HookImpl;
+use crate::{Scraper, WatchMap};
 use anyhow::Result;
 use persistence::{PersistenceImpl, Postgres};
-use std::{collections::HashMap, env};
+use std::collections::HashMap;
+use std::env;
 
 const ENV_PREFIX: &str = "R34_";
 
