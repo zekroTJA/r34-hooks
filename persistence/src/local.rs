@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::ErrorKind;
 use std::path::PathBuf;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Local {
     path: PathBuf,
 }

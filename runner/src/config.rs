@@ -1,14 +1,23 @@
 use anyhow::Result;
 use figment::Figment;
-use figment::providers::{Format, Toml, Yaml};
+use figment::providers::{Env, Format, Toml, Yaml};
 use scraper::WatchMap;
 use scraper::hooks::HookImpl;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
 fn default_storage_dir() -> PathBuf {
     "storage.json".into()
+}
+
+fn default_log_level() -> String {
+    "info".into()
+}
+
+fn default_limit() -> usize {
+    100
 }
 
 #[derive(Deserialize, Debug)]
@@ -18,31 +27,26 @@ pub struct Target {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Config {
-    pub user_id: String,
-    pub api_token: String,
+pub struct StaticConfig {
     #[serde(default = "default_storage_dir")]
     pub storage_dir: PathBuf,
-    pub log_level: Option<String>,
-
-    pub default_tags: Option<Vec<String>>,
-    pub targets: Vec<Target>,
+    #[serde(default = "default_log_level")]
+    pub log_level: String,
+    pub schedule: Option<String>,
+    pub dynamic_config_path: Option<PathBuf>,
 }
 
-impl Config {
-    pub fn parse<T: AsRef<Path>>(path: T) -> Result<Self> {
-        let ext = path.as_ref().extension().unwrap_or_default();
-        let mut figment = Figment::new();
+#[derive(Deserialize, Debug)]
+pub struct DynamicConfig {
+    pub user_id: String,
+    pub api_token: String,
+    pub default_tags: Option<Vec<String>>,
+    pub targets: Vec<Target>,
+    #[serde(default = "default_limit")]
+    pub limit: usize,
+}
 
-        figment = match ext.to_string_lossy().deref() {
-            "yml" | "yaml" => figment.merge(Yaml::file(path)),
-            "toml" => figment.merge(Toml::file(path)),
-            _ => anyhow::bail!("invalid config file type"),
-        };
-
-        Ok(figment.extract()?)
-    }
-
+impl DynamicConfig {
     pub fn get_watch_map(&self) -> WatchMap {
         let mut map = WatchMap::new();
 
@@ -55,4 +59,28 @@ impl Config {
 
         map
     }
+}
+
+pub fn parse_from_env<C>(prefix: &str) -> Result<C>
+where
+    C: DeserializeOwned,
+{
+    Ok(Figment::new().merge(Env::prefixed(prefix)).extract()?)
+}
+
+pub fn parse<P, C>(path: P) -> Result<C>
+where
+    P: AsRef<Path>,
+    C: DeserializeOwned,
+{
+    let ext = path.as_ref().extension().unwrap_or_default();
+    let mut figment = Figment::new();
+
+    figment = match ext.to_string_lossy().deref() {
+        "yml" | "yaml" => figment.merge(Yaml::file(path)),
+        "toml" => figment.merge(Toml::file(path)),
+        _ => anyhow::bail!("invalid config file type"),
+    };
+
+    Ok(figment.extract()?)
 }

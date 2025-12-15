@@ -1,9 +1,9 @@
 use crate::Persistence;
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::{postgres, query, Pool, Row};
+use sqlx::{Pool, Row, postgres, query};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Postgres {
     pool: Pool<sqlx::Postgres>,
 }

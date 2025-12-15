@@ -13,7 +13,7 @@ pub trait Persistence {
     async fn get_last_id(&self, uid: &str) -> Result<Option<i64>>;
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum PersistenceImpl {
     Postgres(Postgres),
     Local(Local),
