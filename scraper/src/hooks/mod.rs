@@ -1,4 +1,5 @@
 use self::discord::Discord;
+use crate::hooks::command::Command;
 use crate::hooks::local::Local;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -6,6 +7,7 @@ use r34_wrapper::Post;
 use serde::Deserialize;
 use std::ops::Deref;
 
+pub mod command;
 pub mod discord;
 pub mod local;
 
@@ -19,6 +21,7 @@ pub trait Hook {
 pub enum HookImpl {
     Discord(Discord),
     Local(Local),
+    Command(Command),
 }
 
 impl Deref for HookImpl {
@@ -28,6 +31,7 @@ impl Deref for HookImpl {
         match self {
             Self::Discord(dc) => dc,
             Self::Local(local) => local,
+            Self::Command(cmd) => cmd,
         }
     }
 }

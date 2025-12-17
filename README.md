@@ -120,13 +120,38 @@ targets:
 
 ##### `discord`
 
+Send posts to a Discord channel via Webhook.
+
 | Key           | Type     | Required | Description                |
 | ------------- | -------- | -------- | -------------------------- |
 | `webhook_url` | `string` | Yes      | URL of the discord webhook |
 
 ##### `local`
 
+Downlaod posts as file to a local directory.
+
 | Key              | Type     | Required              | Description                                        |
 | ---------------- | -------- | --------------------- | -------------------------------------------------- |
 | `directory`      | `string` | Yes                   | Directory to download files to                     |
 | `store_metadata` | `bool`   | No (default: `false`) | Store post metadata to file besides the image file |
+
+##### `command`
+
+Run a command for each post or list of posts. The post metadata is passed to the command as JSON via stdin. When `once_per_post` is set to `true`, the command will be executed once per post with the JSON metadata object passed to the command. Otherwise, the script will be executed only once with the metadata of posts passed as JSON array via stdin to the command.
+
+Here is a simple example script on how to use this hook.
+
+```bash
+#!/usr/bin/env bash
+
+jq -r '.[].file_url' | while read -r url; do
+    wget --directory-prefix downloaded "$url"
+done
+```
+
+| Key             | Type                        | Required              | Description                                                |
+| --------------- | --------------------------- | --------------------- | ---------------------------------------------------------- |
+| `run`           | `string`                    | Yes                   | Command to run                                             |
+| `args`          | `string[]`                  | No                    | Arguments to pass to command                               |
+| `env`           | `{ [key: string]: string }` | No                    | Map of environment variables                               |
+| `once_per_post` | `bool`                      | No (default: `false`) | Execute script once per post instead of once for all posts |

@@ -45,6 +45,8 @@ impl Scraper {
                 for hook in hooks {
                     hook.send(&new).await?;
                 }
+            } else {
+                tracing::info!("No new posts; nothing to send")
             }
         }
 
@@ -106,7 +108,11 @@ impl Scraper {
             self.db.set_last_id(uid, last.id as i64).await?;
         }
 
-        Ok(Some(new))
+        if new.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(new))
+        }
     }
 
     async fn set_latest_id(&self, client: &Client, uid: &str, tags: &[String]) -> Result<()> {

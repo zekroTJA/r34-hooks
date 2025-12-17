@@ -4,3 +4,4 @@
 .vercel
 /config*.yaml
 /storage.json
+/downloaded
