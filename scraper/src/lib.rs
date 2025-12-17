@@ -1,11 +1,10 @@
-pub mod env;
-pub mod hooks;
-
 use anyhow::Result;
 use hooks::HookImpl;
 use persistence::PersistenceImpl;
 use r34_wrapper::{Client, Post};
 use std::collections::HashMap;
+
+pub mod hooks;
 
 pub type WatchMap = HashMap<String, (Vec<String>, HookImpl)>;
 

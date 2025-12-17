@@ -22,6 +22,7 @@ fn default_limit() -> usize {
 
 #[derive(Deserialize, Debug)]
 pub struct Target {
+    pub id: Option<String>,
     pub tags: Vec<String>,
     pub hook: HookImpl,
 }
@@ -51,10 +52,11 @@ impl DynamicConfig {
         let mut map = WatchMap::new();
 
         for target in &self.targets {
-            map.insert(
-                target.tags.join(",").to_string(),
-                (target.tags.clone(), target.hook.clone()),
-            );
+            let id = target
+                .id
+                .clone()
+                .unwrap_or_else(|| target.tags.join(",").to_string());
+            map.insert(id, (target.tags.clone(), target.hook.clone()));
         }
 
         map
