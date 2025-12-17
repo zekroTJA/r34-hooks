@@ -85,9 +85,19 @@ default_tags:
 targets:
   - tags:
       - kindred
-    hook:
-      discord:
-        webhook_url: https://discord.com/api/webhooks/1234567890/webhooktokenexample
+    hooks:
+      - discord:
+          webhook_url: https://discord.com/api/webhooks/1234567890/webhooktokenexample
+  - id: zero_two
+    tags:
+      - zero_two_(darling_in_the_franxx)
+      - -animated
+    hooks:
+      - discord:
+          webhook_url: https://discord.com/api/webhooks/1234567890/webhooktokenexample
+      - local:
+          directory: images/zero_two
+          store_metadata: true
 ```
 
 | Key            | Type       | Required            | Description                                                                                    |
@@ -100,16 +110,23 @@ targets:
 
 #### `Target`
 
-| Key    | Type       | Required                           | Description                                 |
-| ------ | ---------- | ---------------------------------- | ------------------------------------------- |
-| `tags` | `string[]` | Yes                                | List of and-linked tags                     |
-| `hook` | `Hook`     | Yes                                | Hook configuration                          |
-| `id`   | `string`   | No (default: `tags` joiend by `,`) | The ID of the target (relevant for storage) |
+| Key     | Type       | Required                           | Description                                 |
+| ------- | ---------- | ---------------------------------- | ------------------------------------------- |
+| `tags`  | `string[]` | Yes                                | List of and-linked tags                     |
+| `hooks` | `Hook[]`   | Yes                                | Hook configuration                          |
+| `id`    | `string`   | No (default: `tags` joiend by `,`) | The ID of the target (relevant for storage) |
 
 #### `Hook`
 
-##### `Discord`
+##### `discord`
 
 | Key           | Type     | Required | Description                |
 | ------------- | -------- | -------- | -------------------------- |
 | `webhook_url` | `string` | Yes      | URL of the discord webhook |
+
+##### `local`
+
+| Key              | Type     | Required              | Description                                        |
+| ---------------- | -------- | --------------------- | -------------------------------------------------- |
+| `directory`      | `string` | Yes                   | Directory to download files to                     |
+| `store_metadata` | `bool`   | No (default: `false`) | Store post metadata to file besides the image file |
