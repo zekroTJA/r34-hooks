@@ -68,10 +68,11 @@ targets:
 
 #### `Target`
 
-| Key    | Type       | Required | Description             |
-| ------ | ---------- | -------- | ----------------------- |
-| `tags` | `string[]` | Yes      | List of and-linked tags |
-| `hook` | `Hook`     | Yes      | Hook configuration      |
+| Key    | Type       | Required                           | Description                                 |
+| ------ | ---------- | ---------------------------------- | ------------------------------------------- |
+| `tags` | `string[]` | Yes                                | List of and-linked tags                     |
+| `hook` | `Hook`     | Yes                                | Hook configuration                          |
+| `id`   | `string`   | No (default: `tags` joiend by `,`) | The ID of the target (relevant for storage) |
 
 #### `Hook`
 
