@@ -2,61 +2,61 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Posts {
-    #[serde(rename = "@count")]
+    #[serde(rename(deserialize = "@count"))]
     pub count: u64,
-    #[serde(rename = "@offset")]
+    #[serde(rename(deserialize = "@offset"))]
     pub offset: u64,
 
     #[serde(default)]
-    #[serde(rename = "$value")]
+    #[serde(rename(deserialize = "$value"))]
     pub posts: Vec<Post>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Post {
-    #[serde(rename = "@height")]
+    #[serde(rename(deserialize = "@height"))]
     pub height: u64,
-    #[serde(rename = "@score")]
+    #[serde(rename(deserialize = "@score"))]
     pub score: u64,
-    #[serde(rename = "@file_url")]
+    #[serde(rename(deserialize = "@file_url"))]
     pub file_url: String,
-    #[serde(rename = "@parent_id")]
+    #[serde(rename(deserialize = "@parent_id"))]
     pub parent_id: String,
-    #[serde(rename = "@sample_url")]
+    #[serde(rename(deserialize = "@sample_url"))]
     pub sample_url: String,
-    #[serde(rename = "@sample_width")]
+    #[serde(rename(deserialize = "@sample_width"))]
     pub sample_width: u64,
-    #[serde(rename = "@sample_height")]
+    #[serde(rename(deserialize = "@sample_height"))]
     pub sample_height: u64,
-    #[serde(rename = "@preview_url")]
+    #[serde(rename(deserialize = "@preview_url"))]
     pub preview_url: String,
-    #[serde(rename = "@rating")]
+    #[serde(rename(deserialize = "@rating"))]
     pub rating: String,
-    #[serde(rename = "@tags")]
+    #[serde(rename(deserialize = "@tags"))]
     pub tags_concat: String,
-    #[serde(rename = "@id")]
+    #[serde(rename(deserialize = "@id"))]
     pub id: u64,
-    #[serde(rename = "@width")]
+    #[serde(rename(deserialize = "@width"))]
     pub width: u64,
-    #[serde(rename = "@change")]
+    #[serde(rename(deserialize = "@change"))]
     pub change: u64,
-    #[serde(rename = "@md5")]
+    #[serde(rename(deserialize = "@md5"))]
     pub md5: String,
-    #[serde(rename = "@creator_id")]
+    #[serde(rename(deserialize = "@creator_id"))]
     pub creator_id: u64,
-    #[serde(rename = "@has_children")]
+    #[serde(rename(deserialize = "@has_children"))]
     pub has_children: bool,
-    #[serde(rename = "@created_at")]
+    #[serde(rename(deserialize = "@created_at"))]
     pub created_at: String,
-    #[serde(rename = "@source")]
+    #[serde(rename(deserialize = "@source"))]
     pub source: String,
-    #[serde(rename = "@has_notes")]
+    #[serde(rename(deserialize = "@has_notes"))]
     pub has_notes: bool,
-    #[serde(rename = "@has_comments")]
+    #[serde(rename(deserialize = "@has_comments"))]
     pub has_comments: bool,
-    #[serde(rename = "@preview_width")]
+    #[serde(rename(deserialize = "@preview_width"))]
     pub preview_width: u64,
-    #[serde(rename = "@preview_height")]
+    #[serde(rename(deserialize = "@preview_height"))]
     pub preview_height: u64,
 }
 
@@ -79,29 +79,29 @@ mod test {
     fn single_post() {
         let post = r#"
         <?xml version="1.0" encoding="UTF-8"?>
-        <post 
-            height="2894" 
-            score="27" 
-            file_url="https://api-cdn.rule34.xxx/images/6811/aa5d4c4640b1dee8f59bb9245f598a4c.png" 
-            parent_id="" 
-            sample_url="https://api-cdn.rule34.xxx/samples/6811/sample_aa5d4c4640b1dee8f59bb9245f598a4c.jpg" 
-            sample_width="850" 
-            sample_height="601" 
-            preview_url="https://api-cdn.rule34.xxx/thumbnails/6811/thumbnail_aa5d4c4640b1dee8f59bb9245f598a4c.jpg" 
-            rating="e" 
-            tags=" anal anal_sex big_ass big_breasts big_penis bigger_female blue_hair cowgirl_position cum_in_ass doggy_style kayo_kz kindred lamb_(league_of_legends) league_of_legends monster_girl neeko on_back on_top riot_games smaller_female smaller_futanari tail wide_hips " 
-            id="7775085" 
-            width="4093" 
-            change="1681853117" 
-            md5="aa5d4c4640b1dee8f59bb9245f598a4c" 
-            creator_id="2486912" 
-            has_children="false" 
-            created_at="Tue Apr 18 21:24:51 +0000 2023" 
-            status="active" 
-            source="https://twitter.com/Kayo_Kz/status/1648436562315853824?s=20" 
-            has_notes="false" 
-            has_comments="true" 
-            preview_width="150" 
+        <post
+            height="2894"
+            score="27"
+            file_url="https://api-cdn.rule34.xxx/images/6811/aa5d4c4640b1dee8f59bb9245f598a4c.png"
+            parent_id=""
+            sample_url="https://api-cdn.rule34.xxx/samples/6811/sample_aa5d4c4640b1dee8f59bb9245f598a4c.jpg"
+            sample_width="850"
+            sample_height="601"
+            preview_url="https://api-cdn.rule34.xxx/thumbnails/6811/thumbnail_aa5d4c4640b1dee8f59bb9245f598a4c.jpg"
+            rating="e"
+            tags=" anal anal_sex big_ass big_breasts big_penis bigger_female blue_hair cowgirl_position cum_in_ass doggy_style kayo_kz kindred lamb_(league_of_legends) league_of_legends monster_girl neeko on_back on_top riot_games smaller_female smaller_futanari tail wide_hips "
+            id="7775085"
+            width="4093"
+            change="1681853117"
+            md5="aa5d4c4640b1dee8f59bb9245f598a4c"
+            creator_id="2486912"
+            has_children="false"
+            created_at="Tue Apr 18 21:24:51 +0000 2023"
+            status="active"
+            source="https://twitter.com/Kayo_Kz/status/1648436562315853824?s=20"
+            has_notes="false"
+            has_comments="true"
+            preview_width="150"
             preview_height="106"
         />
         "#;
