@@ -1,11 +1,13 @@
-pub mod discord;
-
 use self::discord::Discord;
+use crate::hooks::local::Local;
 use anyhow::Result;
 use async_trait::async_trait;
 use r34_wrapper::Post;
 use serde::Deserialize;
 use std::ops::Deref;
+
+pub mod discord;
+pub mod local;
 
 #[async_trait]
 pub trait Hook {
@@ -16,6 +18,7 @@ pub trait Hook {
 #[serde(rename_all = "lowercase")]
 pub enum HookImpl {
     Discord(Discord),
+    Local(Local),
 }
 
 impl Deref for HookImpl {
@@ -24,6 +27,7 @@ impl Deref for HookImpl {
     fn deref(&self) -> &Self::Target {
         match self {
             Self::Discord(dc) => dc,
+            Self::Local(local) => local,
         }
     }
 }
