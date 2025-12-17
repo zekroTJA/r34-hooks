@@ -29,14 +29,46 @@ services:
 
 ### Static Config
 
-The static config is loaded on startup. It can either be passed as config file by passing the path to the file as first command argument or by environment variables. When you pass the static config via environment parameters, you need to specify a path to the dynamic config. Otherwise, the path of the static config will be used for the dynamic config, so that you can store the static and dynamic config together in one single file. The static config file can be passed in YAML or TOML format.
+The static config is loaded on startup. It can either be passed as config file by passing the path to the file as first command argument or by environment variables. When you pass the static config via environment parameters, you need to specify a path to the dynamic config. Otherwise, the path of the static config will be used for the dynamic config, so that you can store the static and dynamic config together in one single file. The static config file can be passed in YAML or TOML format. Below you can find an example static config file as well as environment configuration.
 
-| Key                   | Type     | Required                                          | Description                                          |
-| --------------------- | -------- | ------------------------------------------------- | ---------------------------------------------------- |
-| `storage_dir`         | `string` | No (default: `storage.json`)                      | Storage file location                                |
-| `log_level`           | `string` | No (default: `info`)                              | Log level                                            |
-| `schedule`            | `string` | No                                                | Cron schedule (including seconds) for scheduled mode |
-| `dynamic_config_path` | `string` | Only if config is passed as environment variables | Path to the dynamic config file                      |
+```yaml
+storage:
+  local:
+    storage_dir: storage.json
+log_level: info
+schedule: "0 0 * * * *" # hourly
+dynamic_config_path: dynamic-config.yaml
+```
+
+```bash
+R34_STORAGE_LOCAL_STORAGE_DIR="storage.json"
+R34_LOG_LEVEL="info"
+R34_SCHEDULE="0 0 * * * *"
+R34_DYNAMIC_CONFIG_PATH="dynamic-config.yaml"
+```
+
+| Key                   | Type      | Required                                          | Description                                          |
+| --------------------- | --------- | ------------------------------------------------- | ---------------------------------------------------- |
+| `storage`             | `Storage` | No (default: `Local` (`storage.json`))            | Storage configuration                                |
+| `log_level`           | `string`  | No (default: `info`)                              | Log level                                            |
+| `schedule`            | `string`  | No                                                | Cron schedule (including seconds) for scheduled mode |
+| `dynamic_config_path` | `string`  | Only if config is passed as environment variables | Path to the dynamic config file                      |
+
+#### `Storage`
+
+Storage can be either of type `local` or `postgres`.
+
+##### `local`
+
+| Key           | Type     | Required | Description                  |
+| ------------- | -------- | -------- | ---------------------------- |
+| `storage_dir` | `string` | Yes      | Location of the storage file |
+
+##### `postgres`
+
+| Key   | Type     | Required | Description                                      |
+| ----- | -------- | -------- | ------------------------------------------------ |
+| `dsn` | `string` | Yes      | DSN (connection string) to the postgres database |
 
 ### Dynamic Config
 

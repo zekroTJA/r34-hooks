@@ -24,6 +24,7 @@ pub struct Target {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum Storage {
     Local { storage_dir: PathBuf },
     Postgres { dsn: String },
