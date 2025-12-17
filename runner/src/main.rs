@@ -31,6 +31,8 @@ async fn main() -> Result<()> {
         .or_else(|| config_file_path.map(|v| v.into()))
         .ok_or_else(|| anyhow::anyhow!("No path to dynamic config has been specified"))?;
 
+    let _ = parse_dynamic_config(&dynamic_config_path)?;
+
     if let Some(schedule) = cfg.schedule {
         let sched = JobScheduler::new().await?;
 
