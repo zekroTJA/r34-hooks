@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 pub mod hooks;
 
-pub type WatchMap = HashMap<String, (Vec<String>, HookImpl)>;
+pub type WatchMap = HashMap<String, (Vec<String>, Vec<HookImpl>)>;
 
 #[derive(Debug)]
 pub struct Scraper {
@@ -38,11 +38,13 @@ impl Scraper {
     }
 
     pub async fn run(&self) -> Result<()> {
-        for (uid, (tags, hook)) in &self.watchers {
+        for (uid, (tags, hooks)) in &self.watchers {
             tracing::info!("Running watcher {uid} ...");
             let new = self.get_new(uid, tags).await?;
             if let Some(new) = new {
-                hook.send(&new).await?;
+                for hook in hooks {
+                    hook.send(&new).await?;
+                }
             }
         }
 

@@ -24,7 +24,7 @@ fn default_limit() -> usize {
 pub struct Target {
     pub id: Option<String>,
     pub tags: Vec<String>,
-    pub hook: HookImpl,
+    pub hooks: Vec<HookImpl>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -56,7 +56,7 @@ impl DynamicConfig {
                 .id
                 .clone()
                 .unwrap_or_else(|| target.tags.join(",").to_string());
-            map.insert(id, (target.tags.clone(), target.hook.clone()));
+            map.insert(id, (target.tags.clone(), target.hooks.clone()));
         }
 
         map
