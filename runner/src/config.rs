@@ -8,10 +8,6 @@ use serde::de::DeserializeOwned;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-fn default_storage_dir() -> PathBuf {
-    "storage.json".into()
-}
-
 fn default_log_level() -> String {
     "info".into()
 }
@@ -28,9 +24,23 @@ pub struct Target {
 }
 
 #[derive(Deserialize, Debug)]
+pub enum Storage {
+    Local { storage_dir: PathBuf },
+    Postgres { dsn: String },
+}
+
+impl Default for Storage {
+    fn default() -> Self {
+        Self::Local {
+            storage_dir: "storage.json".into(),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
 pub struct StaticConfig {
-    #[serde(default = "default_storage_dir")]
-    pub storage_dir: PathBuf,
+    #[serde(default)]
+    pub storage: Storage,
     #[serde(default = "default_log_level")]
     pub log_level: String,
     pub schedule: Option<String>,

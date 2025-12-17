@@ -1,18 +1,26 @@
 use crate::config::{DynamicConfig, StaticConfig};
 use anyhow::Result;
-use persistence::{Local, PersistenceImpl};
+use argh::FromArgs;
+use persistence::{Local, PersistenceImpl, Postgres};
 use scraper::Scraper;
-use std::env;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tokio_cron_scheduler::{Job, JobScheduler};
 
 mod config;
 
+#[derive(FromArgs)]
+/// r34-hooks runner CLI
+struct Args {
+    /// path to optional static config file
+    #[argh(positional)]
+    config_file: Option<PathBuf>,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let config_file_path = env::args().nth(1).map(|a| a.to_string());
+    let args: Args = argh::from_env();
 
-    let cfg: StaticConfig = match config_file_path {
+    let cfg: StaticConfig = match args.config_file {
         Some(ref p) => config::parse(p)?,
         None => config::parse_from_env("R34_")?,
     };
@@ -24,11 +32,14 @@ async fn main() -> Result<()> {
         .with_writer(std::io::stdout)
         .init();
 
-    let storage = PersistenceImpl::Local(Local::new(&cfg.storage_dir));
+    let storage = match &cfg.storage {
+        config::Storage::Local { storage_dir } => PersistenceImpl::Local(Local::new(storage_dir)),
+        config::Storage::Postgres { dsn } => PersistenceImpl::Postgres(Postgres::new(dsn).await?),
+    };
 
     let dynamic_config_path = cfg
         .dynamic_config_path
-        .or_else(|| config_file_path.map(|v| v.into()))
+        .or_else(|| args.config_file.map(|v| v.into()))
         .ok_or_else(|| anyhow::anyhow!("No path to dynamic config has been specified"))?;
 
     let _ = parse_dynamic_config(&dynamic_config_path)?;
